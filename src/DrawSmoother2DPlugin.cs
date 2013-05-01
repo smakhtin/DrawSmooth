@@ -33,7 +33,9 @@ namespace VVVV.Nodes
 		[Input("Width")] private IDiffSpread<int> FLineWidthIn;
 		[Input("Smoother")] private IDiffSpread<int> FSmootherIn;
 		[Input("Color")] private IDiffSpread<RGBAColor> FColorsIn;
-
+		[Input("SamplingPoints")] private IDiffSpread<int> FPointsRangeIn;
+		[Input("Break")] private IDiffSpread<bool> FBreakPointIn;
+		[Input("Reset", IsSingle = true)] private IDiffSpread<bool> FResetIn; 
 		public static DrawSmoother2D Instance;
 
 		public static int Width = 200;
@@ -55,11 +57,6 @@ namespace VVVV.Nodes
 
 		public IPluginHost Host;
 
-		//input pin declaration
-		private IValueIn FBreakPointIn;
-		private IValueIn FPointsRangeIn;
-		private IValueIn FResetIn;
-
 		//output pin declaration
 		private IDXLayerIO FLayerOutput;
 
@@ -76,15 +73,6 @@ namespace VVVV.Nodes
 			//assign host
 			Host = host;
 			Instance = this;
-			
-			Host.CreateValueInput("SamplingPoints", 1, null, TSliceMode.Dynamic, TPinVisibility.True, out FPointsRangeIn);
-			FPointsRangeIn.SetSubType(0, 1000000, 1, 20, false, false, true);
-
-			Host.CreateValueInput("Break", 1, null, TSliceMode.Dynamic, TPinVisibility.Hidden, out FBreakPointIn);
-			FBreakPointIn.SetSubType(0, 1, 1, 0, true, true, true);
-
-			Host.CreateValueInput("Reset", 1, null, TSliceMode.Single, TPinVisibility.True, out FResetIn);
-			FResetIn.SetSubType(0, 1, 1, 0, true, false, true);
 
 			//create outputs	    
 			Host.CreateLayerOutput("Layer", TPinVisibility.True, out FLayerOutput);
@@ -157,7 +145,7 @@ namespace VVVV.Nodes
 				for (var i = 0; i < FSmootherIn.SliceCount; i++)
 				{
 					var count = FSmootherIn[i];
-					//count++;
+					count++;
 					count = Math.Max(count, 0);
 					
 					FSmoother.Add(count);
@@ -166,14 +154,12 @@ namespace VVVV.Nodes
 				if (FSmoother.Count != 0) FAllLines.SetSmoothPointsCount(FSmoother);
 			}
 
-			if (FBreakPointIn.PinIsChanged)
+			if (FBreakPointIn.IsChanged)
 			{
 				FBreakPoint.Clear();
 				for (var i = 0; i < FBreakPointIn.SliceCount; i++)
 				{
-					double value;
-					FBreakPointIn.GetValue(i, out value);
-					FBreakPoint.Add(Convert.ToBoolean(value));
+					FBreakPoint.Add(FBreakPointIn[i]);
 				}
 
 				if (FBreakPoint.Count != 0) FAllLines.SetBreakPoints(FBreakPoint);
@@ -202,24 +188,20 @@ namespace VVVV.Nodes
 				if (FLineWidth.Count != 0) FAllLines.SetLinesWidth(FLineWidth);
 			}
 
-			if (FPointsRangeIn.PinIsChanged)
+			if (FPointsRangeIn.IsChanged)
 			{
 				FPointsRange.Clear();
 				for (var i = 0; i < FPointsRangeIn.SliceCount; i++)
 				{
-					double value;
-					FPointsRangeIn.GetValue(i, out value);
-					FPointsRange.Add(Convert.ToInt32(value));
+					FPointsRange.Add(FPointsRangeIn[i]);
 				}
 
 				if (FPointsRange.Count != 0) FAllLines.SetPointsRange(FPointsRange);
 			}
 
-			if (FResetIn.PinIsChanged)
+			if (FResetIn.IsChanged)
 			{
-				double value;
-				FResetIn.GetValue(0, out value);
-				if (value == 1) FAllLines.Reset();
+				if (FResetIn[0]) FAllLines.Reset();
 				FMeshes.Clear();
 			}
 

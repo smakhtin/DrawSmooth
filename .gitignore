@@ -38,3 +38,8 @@ UpgradeLog.XML
 _ReSharper*/
 *.resharper
 [Tt]est[Rr]esult*
+
+#vvvv
+*~.xml
+plugins/*.dll
+*.pdb
