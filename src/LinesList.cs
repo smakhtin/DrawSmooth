@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using VVVV.PluginInterfaces.V2;
 using VVVV.Utils.VMath;
 using VVVV.Utils.VColor;
 
@@ -10,132 +11,114 @@ namespace VVVV.Nodes
 		
 		public List<SmoothLine> BreakedSmoothLines = new List<SmoothLine>();
 		
-		private List<int> FFRameCounts = new List<int>();
-		
-		private List<bool> FAllowWrite = new List<bool>();
-		
-		private List<int> FSmoothPointsCount = new List<int>();
-		
-		private List<bool> FAllowBreak = new List<bool>();
-		
-		private List<RGBAColor> FColors = new List<RGBAColor>();
-		
-		private List<int> FLineWidth = new List<int>();
+		public ISpread<int> FrameCounts { get; set; }
 
-		private List<int> FPointsRange = new List<int>();
+		public ISpread<bool> AllowWrite { get; set; }
+		
+		public ISpread<int> SmoothPointsCount { get; set; }
+		
+		public ISpread<bool> AllowBreak { get; set; }
+		
+		public ISpread<RGBAColor> Colors { get; set; }
+		
+		public ISpread<int> LineWidth { get; set; }
 
-		public void NewColors(List<RGBAColor> lcol)
+		public ISpread<int> PointsRange { get; set; }
+
+		public void NewPoints(ISpread<Vector2D> points)
 		{
-			FColors = lcol;
-		}
-
-		public void NewBreakPoints(List<bool> allowBreak)
-		{
-			FAllowBreak = allowBreak;
-		}
-
-		public void NewPoints(List<Vector2D> points)
-		{
-			if (FFRameCounts.Count == 0) return;
-			if (FAllowWrite.Count == 0) return;
-			if (FSmoothPointsCount.Count == 0) return;
-			if (FAllowBreak.Count == 0) return;
-			if (FColors.Count == 0) return;
-
-			if (points.Count == 0) return;
-
-			if (ActualSmoothLines.Count < points.Count)
+			if (ActualSmoothLines.Count < points.SliceCount)
 			{
-				for (int i = ActualSmoothLines.Count; i < points.Count; i++)
-					ActualSmoothLines.Add(new SmoothLine(FFRameCounts[i % FFRameCounts.Count],
-											   FSmoothPointsCount[i % FSmoothPointsCount.Count],
-											   FColors[i % FColors.Count],
-											   FLineWidth[i % FLineWidth.Count],
-											   FPointsRange[i % FPointsRange.Count]));
+				for (var i = ActualSmoothLines.Count; i < points.SliceCount; i++)
+				{
+					ActualSmoothLines.Add(new SmoothLine(FrameCounts[i % FrameCounts.SliceCount], SmoothPointsCount[i % SmoothPointsCount.SliceCount], Colors[i % Colors.SliceCount], LineWidth[i % LineWidth.SliceCount], PointsRange[i % PointsRange.SliceCount]));
+				}
+					
 			}
 			
-			//Aligning points
-			for (int i = 0; i < points.Count; i++)
+			for (var i = 0; i < points.SliceCount; i++)
 			{
-				if (FAllowWrite[i % FAllowWrite.Count] && FAllowBreak[i % FAllowBreak.Count] == false)
-					ActualSmoothLines[i].AddNewPoint(points[i]);
+				if (AllowWrite[i % AllowWrite.SliceCount] && AllowBreak[i % AllowBreak.SliceCount] == false) ActualSmoothLines[i].AddNewPoint(points[i]);
 			}
 		}
 
 		//Creating points list
-		public void SetFrameCounts(List<int> frameCounts)
+		public void SetFrameCounts(ISpread<int> frameCounts)
 		{
 			if (frameCounts == null) return;
-			FFRameCounts = frameCounts;
+			FrameCounts = frameCounts;
 
-			for (int i = 0; i < ActualSmoothLines.Count; i++)
-				ActualSmoothLines[i].SetFrameCount(FFRameCounts[i % FFRameCounts.Count]);
+			for (var i = 0; i < ActualSmoothLines.Count; i++) ActualSmoothLines[i].SetFrameCount(FrameCounts[i % FrameCounts.SliceCount]);
 		}
 
-		public void SetWrite(List<bool> write)
+		public void SetWrite(ISpread<bool> write)
 		{
 			if (write == null) return;
-			FAllowWrite = write;
+			
+			AllowWrite = write;
 		}
 
-		public void SetSmoothPointsCount(List<int> smoothPointsCounts)
+		public void SetSmoothPointsCount(ISpread<int> smoothPointsCounts)
 		{
 			if (smoothPointsCounts == null) return;
-			FSmoothPointsCount = smoothPointsCounts;
+			SmoothPointsCount = smoothPointsCounts;
 
-			for (int i = 0; i < ActualSmoothLines.Count; i++)
-				ActualSmoothLines[i].SetSmoother(FSmoothPointsCount[i % FSmoothPointsCount.Count]);
+			for (var i = 0; i < ActualSmoothLines.Count; i++)
+			{
+				ActualSmoothLines[i].SetSmoother(SmoothPointsCount[i % SmoothPointsCount.SliceCount]);
+			}
+				
 		}
 
-		public void SetBreakPoints(List<bool> bp)
+		public void SetBreakPoints(ISpread<bool> breakPoints)
 		{
-			if (bp == null) return;
+			if (breakPoints == null) return;
 			
-			FAllowBreak = bp;
+			AllowBreak = breakPoints;
 			
-			for (int i = 0; i < ActualSmoothLines.Count; i++)
+			for (var i = 0; i < ActualSmoothLines.Count; i++)
 			{
-				if (FAllowBreak[i % FAllowBreak.Count])
+				if (AllowBreak[i % AllowBreak.SliceCount])
 				{
 					if (ActualSmoothLines[i].Flagnew == false)
 					{
 						AddBreakLine(ActualSmoothLines[i]);
-						ActualSmoothLines[i] = new SmoothLine(FFRameCounts[i % FFRameCounts.Count],
-												FSmoothPointsCount[i % FSmoothPointsCount.Count],
-												FColors[i % FColors.Count],
-												FLineWidth[i % FLineWidth.Count],
-												FPointsRange[i % FPointsRange.Count]);
+						ActualSmoothLines[i] = new SmoothLine(FrameCounts[i % FrameCounts.SliceCount],
+												SmoothPointsCount[i % SmoothPointsCount.SliceCount],
+												Colors[i % Colors.SliceCount],
+												LineWidth[i % LineWidth.SliceCount],
+												PointsRange[i % PointsRange.SliceCount]);
 					}
 				}
-				ActualSmoothLines[i].SetColor(FColors[i % FColors.Count]);
+				ActualSmoothLines[i].SetColor(Colors[i % Colors.SliceCount]);
 			}
 		}
 
-		public void SetColors(List<RGBAColor> c)
+		public void SetColors(ISpread<RGBAColor> c)
 		{
 			if (c == null) return;
-			FColors = c;
+			Colors = c;
 	
 			for (int i = 0; i < ActualSmoothLines.Count; i++)
-				ActualSmoothLines[i].SetColor(FColors[i % FColors.Count]);
+				ActualSmoothLines[i].SetColor(Colors[i % Colors.SliceCount]);
 		}
 
-		public void SetLinesWidth(List<int> linesWidth)
+		public void SetLinesWidth(ISpread<int> linesWidth)
 		{
 			if (linesWidth == null) return;
-			FLineWidth = linesWidth;
+			LineWidth = linesWidth;
 			
 			for (int i = 0; i < ActualSmoothLines.Count; i++)
-				ActualSmoothLines[i].LineWidth = FLineWidth[i % FLineWidth.Count];
+				ActualSmoothLines[i].LineWidth = LineWidth[i % LineWidth.SliceCount];
 		}
 
-		public void SetPointsRange(List<int> pointsRange)
+		public void SetPointsRange(ISpread<int> pointsRange)
 		{
 			if (pointsRange == null) return;
-			FPointsRange = pointsRange;
+			PointsRange = pointsRange;
 
 			for (int i = 0; i < ActualSmoothLines.Count; i++)
-				ActualSmoothLines[i].PointsRange = FPointsRange[i % FPointsRange.Count];
+				ActualSmoothLines[i].PointsRange = PointsRange[i % PointsRange.SliceCount];
 		}
 
 		public void AddBreakLine(SmoothLine line)
@@ -157,19 +140,19 @@ namespace VVVV.Nodes
 
 		public int GetAllPoints()
 		{
-			int slice = 0;
+			var slice = 0;
 			
-			foreach (SmoothLine t in BreakedSmoothLines)
+			foreach (var t in BreakedSmoothLines)
 			{
-				for (int j = 0; j < t.SmoothLineParticles.Count; j += t.PointsRange)
+				for (var j = 0; j < t.SmoothLineParticles.Count; j += t.PointsRange)
 				{
 					slice++;
 				}
 			}
 
-			foreach (SmoothLine t in ActualSmoothLines)
+			foreach (var t in ActualSmoothLines)
 			{
-				for (int j = 0; j < t.SmoothLineParticles.Count; j += t.PointsRange)
+				for (var j = 0; j < t.SmoothLineParticles.Count; j += t.PointsRange)
 				{
 					slice++;
 				}
@@ -180,10 +163,10 @@ namespace VVVV.Nodes
 
 		public void Reset()
 		{
-			foreach (SmoothLine t in ActualSmoothLines) t.Reset();
+			foreach (var t in ActualSmoothLines) t.Reset();
 			ActualSmoothLines.Clear();
 			
-			foreach (SmoothLine t in BreakedSmoothLines) t.Reset();
+			foreach (var t in BreakedSmoothLines) t.Reset();
 			BreakedSmoothLines.Clear();
 		}
 	}

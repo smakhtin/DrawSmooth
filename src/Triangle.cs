@@ -7,8 +7,7 @@ namespace VVVV.Nodes
 {
 	public class Triangle
 	{
-		public Microsoft.DirectX.Direct3D.CustomVertex.PositionColoredTextured[] Vertices =
-				new Microsoft.DirectX.Direct3D.CustomVertex.PositionColoredTextured[3];
+		public Microsoft.DirectX.Direct3D.CustomVertex.PositionColoredTextured[] Vertices = new Microsoft.DirectX.Direct3D.CustomVertex.PositionColoredTextured[3];
 
 		public Vertex[] MeshVertices = new Vertex[3];
 

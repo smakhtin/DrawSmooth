@@ -11,43 +11,34 @@ namespace VVVV.Nodes
 	//One line
 	public class SmoothLine
 	{
-		//Source Line
 		public List<Vector2D> InputLine = new List<Vector2D>();
 
-		//Smooth Line
 		public List<Particle> SmoothLineParticles = new List<Particle>();
 
-		//Triangles for rendering
 		public List<Triangle> TriangleList = new List<Triangle>();
 
-		//Vertexes for Mesh
 		public List<Vertex> Vertices = new List<Vertex>();
 
-		//Indexes for Mesh
 		public List<short> Indexes = new List<short>();
 
-		//Latest added point
 		private Vector2D FLastPoint;
 
-		//Points limit
 		private int FFRameCount;
 
-		//Number of smooth points
 		private int FSmoother = 50;
 
 		public int PointsRange = 20;
 
 		public RGBAColor ColorOut;
 
-		public float LineWidth = 1f;
+		public double LineWidth = 1;
 
-		//Flag of the new line
 		public bool Flagnew = true;
 
-		private const float DeltaZ = 0.0000001f;
-		private float FCurrentZ;
+		private const double DeltaZ = 0.0000001f;
+		private double FCurrentZ;
 
-		public float CurrentZ
+		public double CurrentZ
 		{
 			get
 			{
@@ -72,10 +63,10 @@ namespace VVVV.Nodes
 				//Checking point for it's actuality
 				if (FLastPoint.x == point.x && FLastPoint.y == point.y) return;
 
-				double length = Math.Sqrt((FLastPoint.x - point.x) * (FLastPoint.x - point.x) +
+				var length = Math.Sqrt((FLastPoint.x - point.x) * (FLastPoint.x - point.x) +
 										  (FLastPoint.y - point.y) * (FLastPoint.y - point.y));
 				//Checking delta
-				if (length < 6) return;
+				//if (length < 6) return;
 
 				FLastPoint = point;
 
@@ -85,32 +76,32 @@ namespace VVVV.Nodes
 				if (InputLine.Count >= 4)
 				{
 					//Points order (x_1;y_1)  (x0;y0)   (x1;y1)  (x2;y2) 
-					int cnt = InputLine.Count - 1;
-					double x_1 = InputLine[cnt - 3].x;
-					double x0 = InputLine[cnt - 2].x;
-					double x1 = InputLine[cnt - 1].x;
-					double x2 = InputLine[cnt - 0].x;
-					double y_1 = InputLine[cnt - 3].y;
-					double y0 = InputLine[cnt - 2].y;
-					double y1 = InputLine[cnt - 1].y;
-					double y2 = InputLine[cnt - 0].y;
+					var count = InputLine.Count - 1;
+					var x_1 = InputLine[count - 3].x;
+					var x0 = InputLine[count - 2].x;
+					var x1 = InputLine[count - 1].x;
+					var x2 = InputLine[count - 0].x;
+					var y_1 = InputLine[count - 3].y;
+					var y0 = InputLine[count - 2].y;
+					var y1 = InputLine[count - 1].y;
+					var y2 = InputLine[count - 0].y;
 
 					//Calculating coefficients
-					double a3 = (-x_1 + 3 * x0 - 3 * x1 + x2) / 6d;
-					double a2 = (x_1 - 2 * x0 + x1) / 2d;
-					double a1 = (-x_1 + x1) / 2d;
-					double a0 = (x_1 + 4 * x0 + x1) / 6d;
-					double b3 = (-y_1 + 3 * y0 - 3 * y1 + y2) / 6d;
-					double b2 = (y_1 - 2 * y0 + y1) / 2d;
-					double b1 = (-y_1 + y1) / 2d;
-					double b0 = (y_1 + 4 * y0 + y1) / 6d;
+					var a3 = (-x_1 + 3 * x0 - 3 * x1 + x2) / 6.0;
+					var a2 = (x_1 - 2 * x0 + x1) / 2.0;
+					var a1 = (-x_1 + x1) / 2.0;
+					var a0 = (x_1 + 4 * x0 + x1) / 6.0;
+					var b3 = (-y_1 + 3 * y0 - 3 * y1 + y2) / 6.0;
+					var b2 = (y_1 - 2 * y0 + y1) / 2.0;
+					var b1 = (-y_1 + y1) / 2.0;
+					var b0 = (y_1 + 4 * y0 + y1) / 6.0;
 
 					//Filling interval
-					double delta = 1d / (FSmoother + 1);
-					for (double step = delta; step < 1; step += delta)
+					var delta = 1d / (FSmoother + 1);
+					for (var step = delta; step < 1; step += delta)
 					{
-						double x = ((a3 * step + a2) * step + a1) * step + a0;
-						double y = ((b3 * step + b2) * step + b1) * step + b0;
+						var x = ((a3 * step + a2) * step + a1) * step + a0;
+						var y = ((b3 * step + b2) * step + b1) * step + b0;
 						if (SmoothLineParticles.Count == 0)
 						{
 							//Adding point
@@ -128,20 +119,22 @@ namespace VVVV.Nodes
 							SmoothLineParticles.Add(new Particle(Convert.ToSingle(x), Convert.ToSingle(y)));
 
 							GetLastTwoPoint();
-							int index = SmoothLineParticles.Count - 2;
-							Vector2 a = new Vector2(SmoothLineParticles[index].x1, SmoothLineParticles[index].y1);
-							Vector2 b = new Vector2(SmoothLineParticles[index].x2, SmoothLineParticles[index].y2);
-							Vector2 c = new Vector2(SmoothLineParticles[index + 1].x1, SmoothLineParticles[index + 1].y1);
-							Vector2 d = new Vector2(SmoothLineParticles[index + 1].x2, SmoothLineParticles[index + 1].y2);
+							var index = SmoothLineParticles.Count - 2;
+							var a = new Vector2(SmoothLineParticles[index].x1, SmoothLineParticles[index].y1);
+							var b = new Vector2(SmoothLineParticles[index].x2, SmoothLineParticles[index].y2);
+							var c = new Vector2(SmoothLineParticles[index + 1].x1, SmoothLineParticles[index + 1].y1);
+							var d = new Vector2(SmoothLineParticles[index + 1].x2, SmoothLineParticles[index + 1].y2);
+							
 							if (Intersect(a, b, c, d))
 							{
-								float tmpx = SmoothLineParticles[index + 1].x1;
-								float tmpy = SmoothLineParticles[index + 1].y1;
+								var tmpx = SmoothLineParticles[index + 1].x1;
+								var tmpy = SmoothLineParticles[index + 1].y1;
 								SmoothLineParticles[index + 1].x1 = SmoothLineParticles[index + 1].x2;
 								SmoothLineParticles[index + 1].y1 = SmoothLineParticles[index + 1].y2;
 								SmoothLineParticles[index + 1].x2 = tmpx;
 								SmoothLineParticles[index + 1].y2 = tmpy;
 							}
+
 							AddNewTriangle();
 						}
 					}
@@ -156,7 +149,7 @@ namespace VVVV.Nodes
 							InputLine.RemoveAt(0);
 						if (SmoothLineParticles.Count > FSmoother)
 						{
-							for (int i = 0; i <= FSmoother; i++)
+							for (var i = 0; i <= FSmoother; i++)
 								DeleteTriangle(SmoothLineParticles[i].x, SmoothLineParticles[i].y);
 							SmoothLineParticles.RemoveRange(0, FSmoother);
 						}
@@ -245,7 +238,7 @@ namespace VVVV.Nodes
 
 		private void AddTriangle(Vector2 a, Vector2 b, Vector2 c)
 		{
-			Triangle triangle = new Triangle(a.X, a.Y, CurrentZ, b.X, b.Y, CurrentZ, c.X, c.Y, CurrentZ, ColorOut.Color.ToArgb())
+			Triangle triangle = new Triangle(a.X, a.Y, (float)CurrentZ, b.X, b.Y, (float)CurrentZ, c.X, c.Y, (float)CurrentZ, ColorOut.Color.ToArgb())
 			                    	{
 			                    		BasePoint =
 			                    			new Vector2(SmoothLineParticles[SmoothLineParticles.Count - 1].x,

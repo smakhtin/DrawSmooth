@@ -1,8 +1,8 @@
-<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45beta27.1.dtd" >
-   <PATCH nodename="C:\Users\Andrey Bo\Dropbox\VideoFabrika\_misc\DrawSmooth\DrawSmooth (DX9) help.v4p" filename="C:\Users\Andrey Bo\Dropbox\VideoFabrika\_misc\DrawSmooth\DrawSmooth (DX9) help.v4p" systemname="DrawSmooth (DX9) help">
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45beta29.2.dtd" >
+   <PATCH nodename="D:\Dropbox\Git Repos\DrawSmooth\plugins\DrawSmooth (DX9) help.v4p" filename="C:\Users\Andrey Bo\Dropbox\VideoFabrika\_misc\DrawSmooth\DrawSmooth (DX9) help.v4p" systemname="DrawSmooth (DX9) help">
    <BOUNDS height="15540" left="11775" top="0" type="Window" width="12645">
    </BOUNDS>
-   <NODE componentmode="Hidden" id="51" nodename="Mouse (System Window)" systemname="Mouse (System Window)">
+   <NODE componentmode="Hidden" id="51" nodename="Mouse (System Window)" systemname="Mouse (System Window Legacy)">
    <BOUNDS height="270" left="3300" top="600" type="Node" width="900">
    </BOUNDS>
    <PIN pinname="X" visible="1">
@@ -109,7 +109,7 @@
    </PIN>
    <PIN pinname="Actual Backbuffer Width" visible="1">
    </PIN>
-   <PIN pinname="Aspect Ratio" visible="1">
+   <PIN pinname="Aspect Ratio" visible="1" slicecount="1" values="||">
    </PIN>
    </NODE>
    <NODE componentmode="InABox" id="20" nodename="IOBOX (VALUE ADVANCED)" systemname="IOBox (Value Advanced)">
@@ -181,7 +181,7 @@
    </PIN>
    <PIN pinname="TextureFile" visible="1">
    </PIN>
-   <PIN pinname="Transform" pintype="Input" visible="1">
+   <PIN pinname="Transform" pintype="Input" visible="1" slicecount="1" values="||">
    </PIN>
    <PIN pinname="KTurnWidth">
    </PIN>
@@ -246,34 +246,6 @@
    </NODE>
    <LINK dstnodeid="82" dstpinname="Input 2" srcnodeid="84" srcpinname="Bang">
    </LINK>
-   <NODE componentmode="Hidden" id="85" nodename="AspectRatio (Transform)" systemname="AspectRatio (Transform)">
-   <BOUNDS height="100" left="3105" top="14220" type="Node" width="100">
-   </BOUNDS>
-   <PIN pinname="Aspect Height" visible="1">
-   </PIN>
-   <PIN pinname="Aspect Width" visible="1">
-   </PIN>
-   <PIN pinname="Transform Out" visible="1">
-   </PIN>
-   </NODE>
-   <LINK dstnodeid="85" dstpinname="Aspect Height" linkstyle="VHV" srcnodeid="41" srcpinname="Actual Backbuffer Height">
-   <LINKPOINT x="2580" y="14340">
-   </LINKPOINT>
-   <LINKPOINT x="3570" y="14340">
-   </LINKPOINT>
-   </LINK>
-   <LINK dstnodeid="85" dstpinname="Aspect Width" linkstyle="VHV" srcnodeid="41" srcpinname="Actual Backbuffer Width">
-   <LINKPOINT x="2400" y="14340">
-   </LINKPOINT>
-   <LINKPOINT x="3345" y="14340">
-   </LINKPOINT>
-   </LINK>
-   <LINK dstnodeid="41" dstpinname="Aspect Ratio" linkstyle="VHV" srcnodeid="85" srcpinname="Transform Out">
-   <LINKPOINT x="3105" y="14340">
-   </LINKPOINT>
-   <LINKPOINT x="2760" y="14340">
-   </LINKPOINT>
-   </LINK>
    <NODE componentmode="Hidden" id="86" nodename="Renderer (EX9)" systemname="Renderer (EX9)">
    <BOUNDS height="100" left="300" top="9090" type="Node" width="100">
    </BOUNDS>
@@ -299,32 +271,6 @@
    </PIN>
    </NODE>
    <LINK dstnodeid="86" dstpinname="Layers" srcnodeid="52" srcpinname="Layer">
-   </LINK>
-   <NODE componentmode="Hidden" id="87" nodename="S (Node)" systemname="S (Node)">
-   <BOUNDS height="100" left="3090" top="15330" type="Node" width="100">
-   </BOUNDS>
-   <PIN pinname="Input Value" visible="1">
-   </PIN>
-   <PIN pinname="Send String">
-   </PIN>
-   </NODE>
-   <LINK dstnodeid="87" dstpinname="Input Value" srcnodeid="85" srcpinname="Transform Out">
-   </LINK>
-   <NODE componentmode="InABox" id="88" nodename="IOBox (String)" systemname="IOBox (String)">
-   <BOUNDS height="0" left="3315" top="14820" type="Node" width="0">
-   </BOUNDS>
-   <BOUNDS height="240" left="3315" top="14820" type="Box" width="795">
-   </BOUNDS>
-   <PIN encoded="0" pinname="Input String" slicecount="1" values="AspectRatio">
-   </PIN>
-   <PIN encoded="0" pinname="Default" slicecount="1" values="devnul">
-   </PIN>
-   <PIN encoded="0" pinname="File Mask" slicecount="1" values="||">
-   </PIN>
-   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
-   </PIN>
-   </NODE>
-   <LINK dstnodeid="87" dstpinname="Send String" srcnodeid="88" srcpinname="Output String">
    </LINK>
    <NODE componentmode="Hidden" id="89" nodename="DX9Texture (EX9.Texture)" systemname="DX9Texture (EX9.Texture)">
    <BOUNDS height="100" left="840" top="9720" type="Node" width="100">
@@ -398,14 +344,6 @@
    <BOUNDS left="7005" top="12555" type="Box">
    </BOUNDS>
    </NODE>
-   <NODE componentmode="Hidden" id="99" nodename="R (Node)" systemname="R (Node)">
-   <BOUNDS height="100" left="1830" top="4230" type="Node" width="100">
-   </BOUNDS>
-   <PIN pinname="Receive String">
-   </PIN>
-   <PIN pinname="Input Value" visible="1">
-   </PIN>
-   </NODE>
    <NODE componentmode="Hidden" id="101" nodename="Change (Animation)" systemname="Change (Animation)">
    <BOUNDS height="100" left="2115" top="7095" type="Node" width="100">
    </BOUNDS>
@@ -419,15 +357,13 @@
    </BOUNDS>
    <BOUNDS height="240" left="1815" top="4950" type="Box" width="795">
    </BOUNDS>
-   <PIN pinname="Input Node" visible="1">
+   <PIN pinname="Input Node" visible="1" slicecount="1" values="||">
    </PIN>
    <PIN encoded="0" pinname="Descriptive Name" slicecount="1" values="Transform">
    </PIN>
    <PIN pinname="Output Node" visible="1">
    </PIN>
    </NODE>
-   <LINK dstnodeid="103" dstpinname="Input Node" srcnodeid="99" srcpinname="Input Value">
-   </LINK>
    <LINK dstnodeid="52" dstpinname="Transform" hiddenwhenlocked="0" srcnodeid="103" srcpinname="Output Node">
    </LINK>
    <NODE componentmode="InABox" id="124" nodename="IOBox (Color)" systemname="IOBox (Color)">
@@ -575,7 +511,7 @@
    </PIN>
    <PIN pinname="Y Transformed" visible="1">
    </PIN>
-   <PIN pinname="Transform" visible="1">
+   <PIN pinname="Transform" visible="1" slicecount="1" values="||">
    </PIN>
    </NODE>
    <NODE componentmode="Hidden" hiddenwhenlocked="1" id="137" nodename="Translate (Transform)" systemname="Translate (Transform)">
@@ -765,16 +701,6 @@
    <LINK dstnodeid="159" dstpinname="Input" srcnodeid="101" srcpinname="OnChange">
    </LINK>
    <LINK dstnodeid="82" dstpinname="Input 3" srcnodeid="159" srcpinname="Output">
-   </LINK>
-   <NODE componentmode="InABox" id="160" nodename="IOBox (Enumerations)" systemname="IOBox (Enumerations)">
-   <BOUNDS height="0" left="1830" top="3750" type="Node" width="0">
-   </BOUNDS>
-   <BOUNDS height="240" left="1830" top="3750" type="Box" width="1200">
-   </BOUNDS>
-   <PIN pinname="Input Enum" slicecount="1" values="AspectRatio">
-   </PIN>
-   </NODE>
-   <LINK dstnodeid="99" dstpinname="Receive String" srcnodeid="160" srcpinname="Output Enum">
    </LINK>
    <NODE componentmode="InABox" id="161" nodename="IOBox (Value Advanced)" systemname="IOBox (Value Advanced)">
    <BOUNDS height="0" left="3300" top="4950" type="Node" width="0">

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using VVVV.PluginInterfaces.V2;
 using VVVV.PluginInterfaces.V2.EX9;
@@ -12,7 +11,6 @@ using SlimDX.Direct3D9;
 
 namespace VVVV.Nodes
 {
-	//custom data per graphics device
 	public class CustomDeviceData : DeviceData
 	{
 		public Device Device { get; private set; }
@@ -28,30 +26,20 @@ namespace VVVV.Nodes
 	{
 		[Input("FrameCount", DefaultValue = 20, Visibility = PinVisibility.Hidden)] private IDiffSpread<int> FFrameCountIn;
 		[Input("Transform")] private ISpread<Matrix> FWorldTransformIn;
-		[Input("")] private IDiffSpread<Vector2D> FXYIn;
-		[Input("Insert")] private IDiffSpread<bool> FWriteIn;
-		[Input("Width")] private IDiffSpread<int> FLineWidthIn;
-		[Input("Smoother")] private IDiffSpread<int> FSmootherIn;
-		[Input("Color")] private IDiffSpread<RGBAColor> FColorsIn;
-		[Input("SamplingPoints")] private IDiffSpread<int> FPointsRangeIn;
-		[Input("Break")] private IDiffSpread<bool> FBreakPointIn;
-		[Input("Reset", IsSingle = true)] private IDiffSpread<bool> FResetIn; 
+		[Input("")] private ISpread<Vector2D> FXYIn;
+		[Input("Insert")] private ISpread<bool> FWriteIn;
+		[Input("Width")] private ISpread<int> FLineWidthIn;
+		[Input("Smoother")] private ISpread<int> FSmootherIn;
+		[Input("Color")] private ISpread<RGBAColor> FColorsIn;
+		[Input("SamplingPoints")] private ISpread<int> FPointsRangeIn;
+		[Input("Break")] private ISpread<bool> FBreakPointIn;
+		[Input("Reset", IsSingle = true)] private ISpread<bool> FResetIn;
 		public static DrawSmoother2D Instance;
 
 		public static int Width = 200;
 		public static int Height = 200;
 
 		private readonly LinesList FAllLines = new LinesList();
-
-		readonly List<int> FFrameCount = new List<int>();
-		readonly List<bool> FWrite = new List<bool>();
-		readonly List<int> FSmoother = new List<int>();
-		readonly List<bool> FBreakPoint = new List<bool>();
-
-		readonly List<RGBAColor> FColor = new List<RGBAColor>();
-
-		readonly List<int> FLineWidth = new List<int>();
-		readonly List<int> FPointsRange = new List<int>();
 
 		private readonly Dictionary<Device, Mesh> FMeshes = new Dictionary<Device, Mesh>();
 
@@ -109,124 +97,40 @@ namespace VVVV.Nodes
 		}
 		#endregion
 
-		#region mainloop
 		public void Configurate(IPluginConfig input){}
 
 		public void Evaluate(int spreadMax)
 		{
-			//Line points count
-			if (FFrameCountIn.IsChanged)
+			//TODO: Proper set methods refactor
+			FAllLines.SetFrameCounts(FFrameCountIn);
+			FAllLines.SetWrite(FWriteIn);
+			FAllLines.SetSmoothPointsCount(FSmootherIn);
+			FAllLines.SetBreakPoints(FBreakPointIn);
+			FAllLines.SetColors(FColorsIn);
+			FAllLines.SetLinesWidth(FLineWidthIn);
+			FAllLines.SetPointsRange(FPointsRangeIn);
+			
+			if (FResetIn[0])
 			{
-				FFrameCount.Clear();
-				for (var i = 0; i < FFrameCountIn.SliceCount; i++)
-				{
-					double a = FFrameCountIn[i];
-					if (a < 0) a = 0;
-					FFrameCount.Add(Convert.ToInt32(a));
-				}
-
-				if (FFrameCount.Count != 0) FAllLines.SetFrameCounts(FFrameCount);
-			}
-
-			if (FWriteIn.IsChanged)
-			{
-				FWrite.Clear();
-				for (var i = 0; i < FWriteIn.SliceCount; i++)
-				{
-					FWrite.Add(FWriteIn[i]);
-				}
-				
-				if (FWrite.Count != 0) FAllLines.SetWrite(FWrite);
-			}
-
-			if (FSmootherIn.IsChanged)
-			{
-				FSmoother.Clear();
-				for (var i = 0; i < FSmootherIn.SliceCount; i++)
-				{
-					var count = FSmootherIn[i];
-					count++;
-					count = Math.Max(count, 0);
-					
-					FSmoother.Add(count);
-				}
-
-				if (FSmoother.Count != 0) FAllLines.SetSmoothPointsCount(FSmoother);
-			}
-
-			if (FBreakPointIn.IsChanged)
-			{
-				FBreakPoint.Clear();
-				for (var i = 0; i < FBreakPointIn.SliceCount; i++)
-				{
-					FBreakPoint.Add(FBreakPointIn[i]);
-				}
-
-				if (FBreakPoint.Count != 0) FAllLines.SetBreakPoints(FBreakPoint);
-			}
-
-			if (FColorsIn.IsChanged)
-			{
-				FColor.Clear();
-				
-				for (var i = 0; i < FColorsIn.SliceCount; i++)
-				{
-					FColor.Add(FColorsIn[i]);
-				}
-				
-				if (FColor.Count != 0) FAllLines.SetColors(FColor);
-			}
-
-			if (FLineWidthIn.IsChanged)
-			{
-				FLineWidth.Clear();
-				for (var i = 0; i < FLineWidthIn.SliceCount; i++)
-				{
-					FLineWidth.Add(FLineWidthIn[i]);
-				}
-
-				if (FLineWidth.Count != 0) FAllLines.SetLinesWidth(FLineWidth);
-			}
-
-			if (FPointsRangeIn.IsChanged)
-			{
-				FPointsRange.Clear();
-				for (var i = 0; i < FPointsRangeIn.SliceCount; i++)
-				{
-					FPointsRange.Add(FPointsRangeIn[i]);
-				}
-
-				if (FPointsRange.Count != 0) FAllLines.SetPointsRange(FPointsRange);
-			}
-
-			if (FResetIn.IsChanged)
-			{
-				if (FResetIn[0]) FAllLines.Reset();
+				FAllLines.Reset();
 				FMeshes.Clear();
 			}
-
-			if (FXYIn.IsChanged)
-			{
-				var newPoints = new List<Vector2D>();
+			
+			var newPoints = new Spread<Vector2D>();
 				
-				for (var i = 0; i < FXYIn.SliceCount; i++)
-				{
-					var x = FXYIn[i].x;
-					var y = FXYIn[i].y;
+			for (var i = 0; i < FXYIn.SliceCount; i++)
+			{
+				var x = FXYIn[i].x;
+				var y = FXYIn[i].y;
 					
-					x = VMath.Map(x, -1, 1, 0, Width, TMapMode.Clamp);
-					y = VMath.Map(y, -1, 1, 0, Height, TMapMode.Clamp);
+				x = VMath.Map(x, -1, 1, 0, Width, TMapMode.Float);
+				y = VMath.Map(y, -1, 1, 0, Height, TMapMode.Float);
 					
-					newPoints.Add(new Vector2D(x, y));
-				}
-
-				if (newPoints.Count != 0)
-				{
-					FAllLines.NewPoints(newPoints);
-				}
+				newPoints.Add(new Vector2D(x, y));
 			}
+
+			FAllLines.NewPoints(newPoints);
 		}
-		#endregion mainloop
 
 		protected override CustomDeviceData CreateDeviceData(Device device)
 		{
@@ -245,11 +149,11 @@ namespace VVVV.Nodes
 
 				var mesh = new Mesh(device, t.Indexes.Count / 3,
 									 t.Vertices.Count, MeshFlags.Dynamic | MeshFlags.WriteOnly, Vertex.Format);
-				var vS = mesh.LockVertexBuffer(LockFlags.Discard);
-				var iS = mesh.LockIndexBuffer(LockFlags.Discard);
+				var vertexes = mesh.LockVertexBuffer(LockFlags.Discard);
+				var indexes = mesh.LockIndexBuffer(LockFlags.Discard);
 
-				vS.WriteRange(t.Vertices.ToArray());
-				iS.WriteRange(t.Indexes.ToArray());
+				vertexes.WriteRange(t.Vertices.ToArray());
+				indexes.WriteRange(t.Indexes.ToArray());
 
 				mesh.UnlockVertexBuffer();
 				mesh.UnlockIndexBuffer();
@@ -257,7 +161,7 @@ namespace VVVV.Nodes
 				meshes.Add(mesh);
 			}
 
-			foreach (SmoothLine smoothLine in FAllLines.ActualSmoothLines)
+			foreach (var smoothLine in FAllLines.ActualSmoothLines)
 			{
 				if (smoothLine.Indexes.Count == 0 || smoothLine.Vertices.Count == 0) continue;
 
